@@ -58,6 +58,10 @@ class GoodsAdmin(BaseModelAdmin):
     search_fields = ['name', 'detail']
     verbose_name = u'商品SPU信息'
 
+class GoodsImageInline(admin.TabularInline):
+    model = GoodsImage
+    extra = 0
+    verbose_name = u'商品图片'
 
 class GoodsSKUAdmin(BaseModelAdmin):
     """商品SKU模型admin管理类"""
@@ -68,16 +72,12 @@ class GoodsSKUAdmin(BaseModelAdmin):
         (u'规格信息', {'fields': ['price', 'unit', 'stock', 'sales']}),
         (u'图片', {'fields': ['image']}),
     ]
+    inlines = [GoodsImageInline]
     list_display = ['name', 'category', 'goods', 'status', 'price', 'unit', 'stock', 'sales']
     ordering = ['name', 'category', 'goods', 'price']
     list_filter = ['name', 'category', 'goods']
     search_fields = ['category', 'goods', 'name']
     verbose_name = u'商品SKU信息'
-
-
-class GoodsImageAdmin(BaseModelAdmin):
-    """商品图像模型admin管理类"""
-    pass
 
 
 class IndexGoodsBannerAdmin(BaseModelAdmin):
@@ -113,7 +113,6 @@ class IndexPromotionBannerAdmin(BaseModelAdmin):
 admin.site.register(GoodsType, GoodsTypeAdmin)
 admin.site.register(Goods, GoodsAdmin)
 admin.site.register(GoodsSKU, GoodsSKUAdmin)
-admin.site.register(GoodsImage, GoodsImageAdmin)
 admin.site.register(IndexGoodsBanner, IndexGoodsBannerAdmin)
 admin.site.register(IndexPromotionBanner, IndexPromotionBannerAdmin)
 admin.site.register(IndexTypeGoodsBanner, IndexTypeGoodsBannerAdmin)
