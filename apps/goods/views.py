@@ -108,7 +108,7 @@ class DetailView(View):
         new_skus = GoodsSKU.objects.filter(category=sku.category).order_by('-create_time')[:2]
         # 若用户登录，获取购物车中商品的条目数
         cart_count = 0
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             # 获取redis链接
             conn = get_redis_connection('default')
 
@@ -219,7 +219,7 @@ class ListView(View):
 
         # 如果用户登录，获取用户购物车中商品的条目数
         cart_count = 0
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             # 获取redis链接
             conn = get_redis_connection('default')
 
