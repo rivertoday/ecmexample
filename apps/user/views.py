@@ -1,6 +1,7 @@
 import re
 from django.shortcuts import render, redirect
-from django.core.urlresolvers import reverse
+#from django.core.urlresolvers import reverse
+from django.urls import reverse
 # from django.core.mail import send_mail
 from django.views.generic import View
 from django.conf import settings

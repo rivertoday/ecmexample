@@ -11,7 +11,9 @@ class AddressInline(admin.TabularInline):
 class UserAdmin(admin.ModelAdmin):
     """用户模型admin管理类"""
     fieldsets = [
-        (None, {'fields': ['username', 'first_name', 'last_name', 'email', 'last_login']}),
+        (None, {'fields': ['username', 'first_name', 'last_name', 'email','password',
+                           'is_staff','is_active','is_superuser',
+                           'date_joined','last_login']}),
     ]
     inlines = [AddressInline]
     list_display = ('username', 'first_name', 'last_name', 'email', 'last_login')

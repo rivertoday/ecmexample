@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
-
+#from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.views.generic import View
 from django_redis import get_redis_connection
 from apps.goods.models import GoodsType, IndexGoodsBanner, IndexPromotionBanner, IndexTypeGoodsBanner, GoodsSKU
@@ -60,7 +60,8 @@ class IndexView(View):
 
         # 判断用户用户是否已登录
         cart_count = 0
-        if request.user.is_authenticated():
+        #if request.user.is_authenticated():
+        if request.user.is_authenticated:
             # 获取redis链接
             conn = get_redis_connection('default')
 
