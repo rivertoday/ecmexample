@@ -78,14 +78,14 @@
                     {% endfor %}
                 </dl>
 			</div>
-
+            {% autoescape on %}
 			<div class="tab_content">
 				<dl>
 					<dt>商品详情：</dt>
 					<dd>{{ sku.goods.detail|safe }} </dd>
 				</dl>
 			</div>
-
+            {% endautoescape %}
 		</div>
 	</div>
 {% endblock main_content %}
@@ -172,7 +172,7 @@
                 'count': count,
                 'csrfmiddlewaretoken': csrf
             };
-            $.post('/cart/add', params, function (data) {
+            $.post('/cart/add/', params, function (data) {
                 if (data.res == 5) {
                     // 购物车记录添加成功
 {#                    // alert('添加成功')#}

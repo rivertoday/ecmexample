@@ -22,7 +22,7 @@ class CartAddView(View):
     def post(self, request):
         # 判断用户是否登录
         user = request.user
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return JsonResponse({'res': 0, 'errmsg': '请先登录'})
 
         # 获取参数
@@ -135,7 +135,7 @@ class CartUpdateView(View):
     def post(self, request):
         # 判断用户是否登录
         user = request.user
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return JsonResponse({'res': 0, 'errmsg': '请先登录'})
 
         # 接收参数
@@ -187,7 +187,7 @@ class CartDeleteView(View):
     def post(self, request):
         # 判断用户是否登录
         user = request.user
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return JsonResponse({'res': 0, 'errmsg': '请先登录'})
 
         # 接收参数
