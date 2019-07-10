@@ -130,7 +130,7 @@
             // 设置ajax请求为同步请求
             $.ajaxSettings.async = false;
             // 发起ajax post请求，访问/cart/update, 传递参数: sku_id count
-            $.post('/cart/update', params, function (data) {
+            $.post('/cart/update/', params, function (data) {
                 // alert('3');
                 if (data.res == 5) {
                     // 更新成功
@@ -289,7 +289,7 @@
             // 获取商品所在的ul
             var sku_ul = $(this).parents('ul');
             // 发起ajax post请求，访问/cart/delete, 传递参数: sku_id
-            $.post('/cart/delete', params, function (data) {
+            $.post('/cart/delete/', params, function (data) {
                 if (data.res == 3) {
                     // 删除成功
                     // a）移除页面上商品所在的ul

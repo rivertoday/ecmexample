@@ -78,14 +78,12 @@
                     {% endfor %}
                 </dl>
 			</div>
-            {% autoescape on %}
 			<div class="tab_content">
 				<dl>
 					<dt>商品详情：</dt>
 					<dd>{{ sku.goods.detail|safe }} </dd>
 				</dl>
 			</div>
-            {% endautoescape %}
 		</div>
 	</div>
 {% endblock main_content %}

@@ -104,8 +104,10 @@ class CartInfoView(LoginRequiredMixin, View):
             amount = sku.price * int(count)
 
             # 给sku对象增加属性amout和count, 分别保存用户购物车中商品的小计和数量
-            sku.count = count
-            sku.amount = amount
+            sku.count = int(count)
+            sku.amount = int(amount)
+
+            print("%s-%d"%(sku.name,sku.count))
 
             # 追加商品的信息
             skus.append(sku)
