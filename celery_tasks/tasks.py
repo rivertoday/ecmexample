@@ -21,10 +21,20 @@ from apps.goods.models import GoodsType, IndexGoodsBanner, IndexPromotionBanner,
 # 创建一个Celery类的对象
 # app = Celery('celery_tasks.tasks', broker='redis://127.0.0.1:6379/11')
 from celery_tasks.celery import app as app
+import celery
 
+#https://segmentfault.com/a/1190000008022050
+class MyTask(celery.Task):
+    def on_success(self, retval, task_id, args, kwargs):
+        print('task done: %s'%format(retval))
+        return super(MyTask, self).on_success(retval, task_id, args, kwargs)
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        print('task fail, reason: %s'%format(exc))
+        return super(MyTask, self).on_failure(exc, task_id, args, kwargs, einfo)
 
 # 定义任务函数
-@app.task
+@app.task(base=MyTask)
 def send_register_active_email(to_email, username, token):
     """发送激活邮件"""
     # 组织邮件内容
@@ -44,7 +54,7 @@ def send_register_active_email(to_email, username, token):
 
 
 
-@app.task
+@app.task(base=MyTask)
 def generate_static_index_html():
     """使用celery生成静态首页文件"""
     # 获取商品的分类信息
