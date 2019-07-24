@@ -44,6 +44,10 @@ class GoodsTypeAdmin(BaseModelAdmin):
     search_fields = ['name', 'logo']
     verbose_name = u'商品分类信息'
 
+class GoodsImageInline(admin.TabularInline):
+    model = GoodsImage
+    extra = 0
+    verbose_name = u'商品图片'
 
 class GoodsAdmin(BaseModelAdmin):
     """商品模型admin管理类"""
@@ -52,16 +56,12 @@ class GoodsAdmin(BaseModelAdmin):
         (u'商品描述',
          {'fields': ['detail']}),
     ]
+    inlines = [GoodsImageInline]
     list_display = ['name', 'detail']
     ordering = ['name']
     list_filter = ['name']
     search_fields = ['name', 'detail']
     verbose_name = u'商品SPU信息'
-
-class GoodsImageInline(admin.TabularInline):
-    model = GoodsImage
-    extra = 0
-    verbose_name = u'商品图片'
 
 class GoodsSKUAdmin(BaseModelAdmin):
     """商品SKU模型admin管理类"""
@@ -70,9 +70,8 @@ class GoodsSKUAdmin(BaseModelAdmin):
         (u'所属商品种类和名称', {'fields': ['category','goods']}),
         (u'上下架状态', {'fields': ['status']}),
         (u'规格信息', {'fields': ['price', 'unit', 'stock', 'sales']}),
-        (u'图片', {'fields': ['image']}),
+        (u'SKU图片', {'fields': ['image']}),
     ]
-    inlines = [GoodsImageInline]
     list_display = ['name', 'category', 'goods', 'status', 'price', 'unit', 'stock', 'sales']
     ordering = ['name', 'category', 'goods', 'price']
     list_filter = ['name', 'category', 'goods']

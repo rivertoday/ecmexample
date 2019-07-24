@@ -65,7 +65,7 @@ class Goods(BaseModel):
 
 class GoodsImage(BaseModel):
     '''商品图片模型类'''
-    sku = models.ForeignKey('GoodsSKU', verbose_name='商品SKU', on_delete=models.CASCADE)
+    sku = models.ForeignKey('Goods', verbose_name='商品', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='goods', verbose_name='图片路径')
 
     def __str__(self):
@@ -73,7 +73,7 @@ class GoodsImage(BaseModel):
 
     class Meta:
         db_table = 'df_goods_image'
-        verbose_name = '商品SKU图片'
+        verbose_name = '商品图片'
         verbose_name_plural = verbose_name
 
 
