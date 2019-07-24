@@ -91,9 +91,9 @@ WSGI_APPLICATION = 'dailyfresh.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-import pymysql
+#import pymysql
 
-pymysql.install_as_MySQLdb()
+#pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.sqlite3',
@@ -157,13 +157,15 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 # 邮箱配置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.163.com'
-EMAIL_PORT = 465
+EMAIL_PORT = 465 
+#EMAIL_USE_TLS = True
+EMAIL_USE_SSL = True
 # 发送邮件的邮箱
-EMAIL_HOST_USER = 'clinicaladmin@163.com'
+EMAIL_HOST_USER = 'phxteaadmin@163.com'
 # 在邮箱中设置的客户端授权密码
 EMAIL_HOST_PASSWORD = 'Asdf1234'
 # 收件人看到的发件人
-EMAIL_FROM = 'Phxtea friends'
+EMAIL_FROM = '凤凰茶城管理员<phxteaadmin@163.com>'
 
 # 配置 djcelery
 # import djcelery
@@ -176,7 +178,7 @@ CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         # 设置django缓存的数据保存在redis数据库中
-        "LOCATION": "redis://127.0.0.1:6379/5",
+        "LOCATION": "redis://127.0.0.1:6379/7",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -198,7 +200,7 @@ DEFAULT_FILE_STORAGE = 'utils.fdfs.storage.FDFSStorage'
 FDFS_CLIENT_CONF = os.path.join(BASE_DIR, 'utils/fdfs/client.conf')
 
 # 指定FDFS系统中Nginx的ip和port
-FDFS_NGINX_URL = 'http://10.17.1.226:80/'
+FDFS_NGINX_URL = 'http://39.104.189.166:9000/'
 
 
 # 当添加、修改、删除数据时，自动生成索引
