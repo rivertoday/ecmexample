@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from .models import User, Address
 
 
@@ -8,7 +9,7 @@ class AddressInline(admin.TabularInline):
     extra = 0
     verbose_name = u'收货地址'
 
-class UserAdmin(admin.ModelAdmin):
+class MyUserAdmin(UserAdmin):
     """用户模型admin管理类"""
     fieldsets = [
         (None, {'fields': ['username', 'first_name', 'last_name', 'email','password',
@@ -20,7 +21,7 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ['username']
     search_fields = ['username', 'first_name', 'last_name', 'email']
 
-admin.site.register(User, UserAdmin)
+admin.site.register(User, MyUserAdmin)
 
 admin.site.site_header = u'凤凰茶城管理后台'
 admin.site.site_title = u'凤凰茶城管理后台'
