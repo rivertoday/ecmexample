@@ -94,7 +94,7 @@
             };
             // 发起ajax post请求，访问/order/pay
             // 传递参数: order_id
-            $.post('/order/pay', params, function (data) {
+            $.post('/order/pay/', params, function (data) {
                 if (data.res == 3) {
                     // 成功
                     // window.open(data.pay_url);

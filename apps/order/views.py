@@ -56,8 +56,8 @@ class OrderPlaceView(LoginRequiredMixin, View):
 
             # 给sku对象增加属性count和amount
             # 分别保存用户要购买的商品的数目和小计
-            sku.count = count
-            sku.amount = amount
+            sku.count = int(count)
+            sku.amount = int(amount)
 
             # 追加商品的信息
             skus.append(sku)
@@ -116,7 +116,7 @@ class OrderCommitView1(View):
     def post(self, request):
         # 判断用户是否登录
         user = request.user
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return JsonResponse({'res': 0, 'errmsg': '用户未登录'})
 
         # 接收参数
@@ -226,7 +226,7 @@ class OrderCommitView2(View):
     def post(self, request):
         # 判断用户是否登录
         user = request.user
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return JsonResponse({'res': 0, 'errmsg': '用户未登录'})
 
         # 接收参数
@@ -353,7 +353,7 @@ class OrderCommitView(View):
     def post(self, request):
         # 判断用户是否登录
         user = request.user
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return JsonResponse({'res': 0, 'errmsg': '用户未登录'})
 
         # 接收参数
@@ -503,7 +503,7 @@ class OrderPayView(View):
     def post(self, request):
         # 登录验证
         user = request.user
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return JsonResponse({'res': 0, 'errmsg': '用户未登录'})
 
         # 接收参数
