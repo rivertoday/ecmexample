@@ -41,9 +41,9 @@ https://www.cnblogs.com/wdliu/p/9517535.html
 
 后台启动：
 
-`celery multi start w1 -A myproject -l info`
+`celery multi start w1 -A celery_tasks -l info`
 
-3、后台商品添加完毕后，需要执行如下命令重建商品索引
+3、后台商品添加完毕后，需要执行如下命令重建商品索引以支持全文检索
 
 `python manage.py rebuild_index`
 
