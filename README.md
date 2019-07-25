@@ -1,7 +1,7 @@
 # ecmexample
 An e-commercial system example
 
-参考了两个示例
+# 参考了两个示例
 
 ## 基于Django的电商网站开发高级
 
@@ -15,8 +15,8 @@ https://www.cnblogs.com/welan/p/9231530.html
 
 https://github.com/weilanhanf/daily_fresh_demo
 
-## 本项目启动说明
-### 辅助功能准备
+# 本项目启动说明
+## 辅助功能准备
 
 fastdfs: Ubuntu下FastDFS分布式文件系统配置与部署
 
@@ -30,7 +30,7 @@ celery异步任务处理
 
 https://www.cnblogs.com/wdliu/p/9517535.html
 
-### 启动
+## 启动
 
 uwsgi配合nginx常规启动
 
