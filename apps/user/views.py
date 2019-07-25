@@ -18,6 +18,7 @@ from apps.goods.models import GoodsSKU
 from apps.order.models import OrderInfo, OrderGoods
 from celery_tasks import tasks
 
+import time
 
 # from apps.user import tasks
 
@@ -97,7 +98,12 @@ class RegisterView(View):
         # #           from_email='发件人',
         # #           recipient_list='收件人列表')
         # send_mail(subject, message, sender, receiver, html_message=html_message)
-        tasks.send_register_active_email.delay(email, username, token)
+        result = tasks.send_register_active_email.delay(email, username, token)
+
+        while not result.ready():
+            time.sleep(1)
+
+        print('task done: %s'%format(result.get()))
 
         # 4.返回应答: 跳转到首页
         return redirect(reverse('goods:index'))
