@@ -37,13 +37,16 @@ class IndexView(View):
             for category in types:
                 # 获取type种类在首页展示的图片商品的信息和文字商品的信息
                 # QuerySet
-                image_banner = IndexTypeGoodsBanner.objects.filter(category=category, display_type=1)
-                title_banner = IndexTypeGoodsBanner.objects.filter(category=category, display_type=0)
+                image_banner = IndexTypeGoodsBanner.objects.filter(category=category, display_type=1).order_by('index')[:4]
+                title_banner = IndexTypeGoodsBanner.objects.filter(category=category, display_type=0).order_by('index')[:6]
 
                 # 给type对象增加属性title_banner,image_banner
                 # 分别保存type种类在首页展示的文字商品和图片商品的信息
                 category.title_banner = title_banner
                 category.image_banner = image_banner
+
+                # for itt in category.image_banner:
+                #     print(itt.sku)
 
             # 缓存数据
             context = {
