@@ -13,9 +13,9 @@ from django.contrib.auth.decorators import login_required
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
-from apps.user.models import User, Address
-from apps.goods.models import GoodsSKU
-from apps.order.models import OrderInfo, OrderGoods
+from user.models import User, Address
+from goods.models import GoodsSKU
+from order.models import OrderInfo, OrderGoods
 from celery_tasks import tasks
 
 import time

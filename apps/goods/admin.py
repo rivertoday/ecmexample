@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.core.cache import cache
-from apps.goods.models import GoodsType, Goods, GoodsSKU, GoodsImage, IndexPromotionBanner, IndexGoodsBanner,  IndexTypeGoodsBanner
+from goods.models import GoodsType, Goods, GoodsSKU, GoodsImage, IndexPromotionBanner, IndexGoodsBanner,  IndexTypeGoodsBanner
 # Register your models here.
 
 

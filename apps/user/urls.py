@@ -1,6 +1,6 @@
 #from django.conf.urls import url
 from django.urls import path, re_path
-from apps.user.views import RegisterView, ActiveView, LoginView, LogoutView, UserInfoView, UserOrderView, AddressView
+from user.views import RegisterView, ActiveView, LoginView, LogoutView, UserInfoView, UserOrderView, AddressView
 from django.contrib.auth.decorators import login_required
 
 urlpatterns = [

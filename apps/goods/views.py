@@ -5,8 +5,8 @@ from django.core.cache import cache
 from django.urls import reverse
 from django.views.generic import View
 from django_redis import get_redis_connection
-from apps.goods.models import GoodsType, IndexGoodsBanner, IndexPromotionBanner, IndexTypeGoodsBanner, GoodsSKU
-from apps.order.models import OrderGoods
+from goods.models import GoodsType, IndexGoodsBanner, IndexPromotionBanner, IndexTypeGoodsBanner, GoodsSKU
+from order.models import OrderGoods
 
 
 # Create your views here.

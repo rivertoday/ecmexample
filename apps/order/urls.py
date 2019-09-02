@@ -1,6 +1,6 @@
 #from django.conf.urls import url
 from django.urls import path, re_path
-from apps.order.views import OrderPlaceView, OrderCommitView, OrderCheckView, OrderPayView, CommentView
+from order.views import OrderPlaceView, OrderCommitView, OrderCheckView, OrderPayView, CommentView
 
 urlpatterns = [
     # url(r'^place$', OrderPlaceView.as_view(), name='place'), # 提交订单页面

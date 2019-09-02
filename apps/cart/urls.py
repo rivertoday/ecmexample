@@ -1,6 +1,6 @@
 #from django.conf.urls import url
 from django.urls import path
-from apps.cart.views import CartAddView, CartInfoView, CartUpdateView, CartDeleteView
+from cart.views import CartAddView, CartInfoView, CartUpdateView, CartDeleteView
 
 urlpatterns = [
     # url(r'^add$', CartAddView.as_view(), name='add'), # 购物车记录添加

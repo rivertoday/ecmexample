@@ -32,8 +32,8 @@ urlpatterns = [
     #path('xadmin/', xadmin.site.urls),
     path('search/', include('haystack.urls')),  # 全文检索框架
     path('tinymce/', include('tinymce.urls')),  # 富文本编辑器url
-    path('user/', include(('apps.user.urls','user'), namespace='user')),  # 用户模块 user.urls
-    path('cart/', include(('apps.cart.urls','cart'), namespace='cart')),  # 购物车模块
-    path('order/', include(('apps.order.urls','order'), namespace='order')),  # 订单模块
-    path('', include(('apps.goods.urls','goods'), namespace='goods')),  # 商品模块
+    path('user/', include(('user.urls','user'), namespace='user')),  # 用户模块 user.urls
+    path('cart/', include(('cart.urls','cart'), namespace='cart')),  # 购物车模块
+    path('order/', include(('order.urls','order'), namespace='order')),  # 订单模块
+    path('', include(('goods.urls','goods'), namespace='goods')),  # 商品模块
 ]

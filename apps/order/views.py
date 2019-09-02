@@ -4,9 +4,9 @@ from django.views.generic import View
 from utils.mixin import LoginRequiredMixin
 #from django.core.urlresolvers import reverse
 from django.urls import reverse
-from apps.user.models import Address
-from apps.goods.models import GoodsSKU
-from apps.order.models import OrderInfo, OrderGoods
+from user.models import Address
+from goods.models import GoodsSKU
+from order.models import OrderInfo, OrderGoods
 
 from django_redis import get_redis_connection
 

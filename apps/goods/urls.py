@@ -1,6 +1,6 @@
 #from django.conf.urls import include, url
 from django.urls import path, re_path
-from apps.goods.views import IndexView, DetailView, ListView
+from goods.views import IndexView, DetailView, ListView
 
 urlpatterns = [
     # url(r'^$', IndexView.as_view(), name='index'),  # 首页

@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django_redis import get_redis_connection
 from utils.mixin import LoginRequiredMixin
 
-from apps.goods.models import GoodsSKU
+from goods.models import GoodsSKU
 
 
 from django.views.generic import detail

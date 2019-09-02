@@ -1,12 +1,12 @@
 """抽象模型基类"""
 '''
 @Time    : 2018/3/9 上午8:14
-@Author  : scrappy_zhang
+@Author  : scrappy_zhang, Jeremy JIANG
 @File    : base_model.py
 '''
 
 from django.db import models
-
+from datetime import date
 
 class BaseModel(models.Model):
     """抽象模型基类"""

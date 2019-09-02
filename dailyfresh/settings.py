@@ -17,7 +17,7 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # 添加apps目录，方便应用书写
-# sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
+sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 #sys.path.insert(0, os.path.join(BASE_DIR, 'extra_apps'))
 
 # Quick-start development settings - unsuitable for production
@@ -46,10 +46,11 @@ INSTALLED_APPS = (
     # 'celery_tasks',
 
     # 项目应用
-    'apps.cart',  # 购物车  cart
-    'apps.goods',  # 商品
-    'apps.order',  # 订单
-    'apps.user',  # 用户
+    'cart',  # 购物车  cart
+    'goods',  # 商品
+    'order',  # 订单
+    'user',  # 用户
+    'promotion', #促销
 
     # 'xadmin',
     # 'crispy_forms',
@@ -145,7 +146,7 @@ HAYSTACK_CONNECTIONS = {
     'default': {
         # 使用whoosh引擎
         #'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'ENGINE': 'apps.goods.whoosh_cn_backend.WhooshEngine',
+        'ENGINE': 'goods.whoosh_cn_backend.WhooshEngine',
         # 索引文件路径
         'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
     }
