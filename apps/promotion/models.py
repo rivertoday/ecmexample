@@ -49,20 +49,33 @@ class Promotion4Goods(Promotion):
     category = models.SmallIntegerField(default=0, choices=prom_category, verbose_name=u'覆盖范围')
     # 根据覆盖范围不同，建立不同的关联关系
     # 程序去检索下面两个对应的模型
-    #打折率,例如9.5折
-    discount = models.DecimalField(max_digits=2, decimal_places=1, verbose_name=u'打折率')
+    #打折率,例如0.95折
+    discount = models.DecimalField(max_digits=3, decimal_places=2, default=1.0, null=True, verbose_name=u'打折率')
     #降价价格，最多降999
-    reduct = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=u'降价')
+    reduct = models.DecimalField(max_digits=5, decimal_places=2, default=0, null=True, verbose_name=u'降价')
+
+    class Meta:
+        db_table = 'df_promotions4goods'
+        verbose_name = '单品促销'
+        verbose_name_plural = verbose_name
 
 #单品促销与商品分类的关联
 class Promotion4Goods_GoodsType(BaseModel):
     p4gobj = models.ForeignKey('Promotion4Goods', verbose_name=u'促销按单品', on_delete=models.CASCADE)
     gtobj = models.ForeignKey('goods.GoodsType', verbose_name=u'商品种类', on_delete=models.CASCADE)
+    class Meta:
+        db_table = 'df_promotions4goods_goodstype'
+        verbose_name = '单品促销与分类关联'
+        verbose_name_plural = verbose_name
 
 #单品促销与商品SKU的关联
 class Promotion4Goods_GoodsSKU(BaseModel):
     p4gobj = models.ForeignKey('Promotion4Goods', verbose_name=u'促销按单品', on_delete=models.CASCADE)
     gskuobj = models.ForeignKey('goods.GoodsSKU', verbose_name=u'商品SKU', on_delete=models.CASCADE)
+    class Meta:
+        db_table = 'df_promotions4goods_goodssku'
+        verbose_name = '单品促销与sku关联'
+        verbose_name_plural = verbose_name
 
 #按订单促销
 class Promotion4Order(Promotion):
@@ -75,8 +88,13 @@ class Promotion4Order(Promotion):
     # 活动类型
     type = models.SmallIntegerField(default=0, choices=prom_type_order, verbose_name=u'活动类型')
     # 订单金额起点，最多99999
-    amount = models.DecimalField(max_digits=7, decimal_places=2, verbose_name=u'订单金额起点')
-    # 打折率,例如9.5折
-    discount = models.DecimalField(max_digits=2, decimal_places=1, verbose_name=u'打折率')
+    amount = models.DecimalField(max_digits=7, decimal_places=2, default=0, verbose_name=u'订单金额起点')
+    # 打折率,例如0.95折
+    discount = models.DecimalField(max_digits=3, decimal_places=2, default=1.0, null=True, verbose_name=u'打折率')
     # 减免金额，最多减免9999
-    reduct = models.DecimalField(max_digits=6, decimal_places=2, verbose_name=u'减免金额')
+    reduct = models.DecimalField(max_digits=6, decimal_places=2, default=0, null=True, verbose_name=u'减免金额')
+
+    class Meta:
+        db_table = 'df_promotions4order'
+        verbose_name = '订单促销'
+        verbose_name_plural = verbose_name
