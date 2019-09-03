@@ -1,11 +1,9 @@
 from django.db import models
 from db.base_model import BaseModel
 from tinymce.models import HTMLField
-
+#from promotion.models import Promotion
 
 # Create your models here.
-
-
 class GoodsType(BaseModel):
     '''商品种类模型类'''
     name = models.CharField(max_length=20, verbose_name='种类名称')
@@ -118,6 +116,7 @@ class IndexPromotionBanner(BaseModel):
     url = models.CharField(max_length=256, verbose_name='活动链接')
     image = models.ImageField(upload_to='banner', verbose_name='活动图片')
     index = models.SmallIntegerField(default=0, verbose_name='展示顺序')
+    promotion = models.ForeignKey("promotion.Promotion", verbose_name=u'促销活动', on_delete=None)
 
     def __str__(self):
         return self.name

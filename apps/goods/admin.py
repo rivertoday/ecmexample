@@ -107,7 +107,17 @@ class IndexTypeGoodsBannerAdmin(BaseModelAdmin):
 
 class IndexPromotionBannerAdmin(BaseModelAdmin):
     """首页促销活动admin管理类"""
-    pass
+    fieldsets = [
+        (u'活动名称', {'fields': ['name']}),
+        (u'其它信息',
+         {'fields': ['url', 'image', 'index']}),
+        (u'关联促销活动',
+         {'fields': ['promotion']}),
+    ]
+    list_display = ['name', 'index', 'url', 'promotion']
+    ordering = ['name', 'index']
+    list_filter = ['name']
+    verbose_name = u'首页促销活动信息'
 
 admin.site.register(GoodsType, GoodsTypeAdmin)
 admin.site.register(Goods, GoodsAdmin)
