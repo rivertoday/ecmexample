@@ -7,11 +7,9 @@ from django.views.generic import View
 from django_redis import get_redis_connection
 from goods.models import GoodsType, IndexGoodsBanner, IndexPromotionBanner, IndexTypeGoodsBanner, GoodsSKU
 from order.models import OrderGoods
-
+from promotion.models import Promotion, Promotion4Goods, Promotion4Goods_GoodsType, Promotion4Goods_GoodsSKU, Promotion4Order
 
 # Create your views here.
-
-
 # http://127.0.0.1:8000
 # /
 class IndexView(View):
@@ -109,6 +107,29 @@ class DetailView(View):
         same_spu_skus = GoodsSKU.objects.filter(goods=sku.goods).exclude(id=sku_id)
         # 获取同种类的新品信息
         new_skus = GoodsSKU.objects.filter(category=sku.category).order_by('-create_time')[:2]
+
+        # 获取促销信息，有三种情况
+        # 1）促销活动覆盖全部商品
+
+        # 2) 促销活动覆盖部分商品分类，此时需要检查本商品是否在该分类中
+        search_dict = dict()
+        search_dict['status'] = 0  # 状态为启用
+        search_dict['category'] = 1  # 覆盖范围为商品分类
+        p4glist = Promotion4Goods.objects.filter(**search_dict)
+        for it in p4glist:
+            sd = dict()
+            sd['p4gobj_id'] = it.id
+            pgtlist = Promotion4Goods_GoodsType.objects.filter(**sd)
+            if (it.type == 0):
+                print("打折率: %f"%it.discount)
+            if (it.type == 1):
+                print("降价：%f"%it.reduct)
+            for gt in pgtlist:
+                print("商品分类id：%d"%(gt.gtobj_id))
+
+        # 3) 促销活动覆盖部分商品sku，此时需要检查本商品sku是否在清单中
+
+
         # 若用户登录，获取购物车中商品的条目数
         cart_count = 0
         if request.user.is_authenticated:
