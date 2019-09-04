@@ -1,5 +1,6 @@
 {% extends 'base_detail_list.html' %}
 {% load static from staticfiles %}
+{% load my_tag %}
 {% block title %}天天生鲜-商品详情{% endblock title %}
 {% block main_content %}
 
@@ -18,7 +19,7 @@
 			<h3>{{ sku.name }}</h3>
 			<p>{{ sku.desc }}</p>
 			<div class="prize_bar">
-				<span class="show_pirze">¥<em>{{ sku.price }}</em></span>
+				<span class="show_prize">¥<em>{{ sku.price }}</em></span>
 				<span class="show_unit">单  位：{{ sku.unit }}</span>
 				<span class="show_unit">库  存：{{ sku.stock }}</span>
 			</div>
@@ -38,7 +39,30 @@
                     {% endfor %}
                 </div>
             </div>
-			<div class="total">总价：<em>{{ sku.price }}元</em></div>
+            <div>
+                {% if promotion %}
+                    <p style="color:red">促销信息:
+                    {% if hasdiscount %}
+                        本商品近期有打折促销，折扣率为：{{ discount|floatformat:"2" }}
+                    {% endif %}
+                    {% if hasreduct %}
+                        本商品近期有降价促销，每件商品一律降价：{{ reduct|floatformat:"2" }}元
+                    {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+			<div class="total">总价：
+                <em>
+                {#{{ sku.price }}元#}
+                {% if hasdiscount %}
+                    {{ sku.price|filter_multi:discount|floatformat:"2" }}  元
+                {% elif hasreduct %}
+                    {{ sku.price|filter_minus:reduct|floatformat:"2" }}  元
+                {% else %}
+                    {{ sku.price }}  元
+                {% endif %}
+                </em>
+            </div>
 			<div class="operate_btn">
 				<a href="javascript:;" class="buy_btn">立即购买</a>
                 {% csrf_token %}
@@ -98,11 +122,30 @@
          // 计算商品总价
         function update_sku_amount() {
             // 获取商品的价格
-            var price = $('.show_pirze').children('em').text();
+            var price = $('.show_prize').children('em').text();
             // 获取商品的数量
             var count = $('.num_show').val();
+
+            //获取商品的折扣
+            var bhaspromotion = {{ promotion|safe }};
+            var bhasdiscount = {{ hasdiscount|safe }}; //JSON.parse('{{ hasdiscount|safe }}');
+            //alert("是否有折扣"+bhasdiscount);
+            var fdiscount = {{ discount|safe }};
+            //获取商品的降价
+            var bhasreduct = {{ hasreduct|safe }};
+            //alert("是否有降价"+bhasreduct);
+            var freduct = {{ reduct|safe }};
+
             // 计算商品的价格
             var amount = parseInt(count)*parseFloat(price);
+            if (bhaspromotion) {
+                if (bhasdiscount) {
+                    amount = amount*parseFloat(fdiscount);
+                }else if(bhasreduct) {
+                    amount = amount-parseInt(count)*parseFloat(freduct);
+                }
+            }
+            
             // 设置商品总价
             $('.total').children('em').text(amount.toFixed(2)+'元');
         }

@@ -1,6 +1,6 @@
 body{font-family:'Microsoft Yahei';font-size:12px;color:#666;}
 html,body{height:100%}
-/* 顶部样式 modified to activate */
+/* 顶部样式 */
 .header_con{
 	background-color:#f7f7f7;
 	height:29px;
@@ -240,8 +240,8 @@ html,body{height:100%}
 .goods_detail_list h3{font-size:24px;line-height:24px;color:#666;font-weight:normal;}
 .goods_detail_list p{color:#666;line-height:40px;}
 .prize_bar{height:72px;background-color:#fff5f5;line-height:72px;}
-.prize_bar .show_pirze{font-size:20px;color:#ff3e3e;padding-left:20px}
-.prize_bar .show_pirze em{font-style:normal;font-size:36px;padding-left:10px}
+.prize_bar .show_prize{font-size:20px;color:#ff3e3e;padding-left:20px}
+.prize_bar .show_prize em{font-style:normal;font-size:36px;padding-left:10px}
 .prize_bar .show_unit{padding-left:150px}
 
 .goods_num{height:52px;margin-top:19px;}
@@ -251,7 +251,7 @@ html,body{height:100%}
 .goods_num .num_add .add,.goods_num .num_add .minus{width:25px;line-height:25px;text-align:center;border-left:1px solid #ddd;border-bottom:1px solid #ddd;color:#666;font-size:14px}
 .goods_num .num_add .minus{border-bottom:0px}
 
-.total{height:35px;line-height:35px;margin-top:25px;}
+.total{height:25px;line-height:20px;margin-top:10px;}
 .total em{font-style:normal;color:#ff3e3e;font-size:18px}
 
 .operate_btn{height:40px;margin-top:35px;font-size:0;position:relative;}

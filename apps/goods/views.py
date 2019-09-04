@@ -8,6 +8,8 @@ from django_redis import get_redis_connection
 from goods.models import GoodsType, IndexGoodsBanner, IndexPromotionBanner, IndexTypeGoodsBanner, GoodsSKU
 from order.models import OrderGoods
 from promotion.models import Promotion, Promotion4Goods, Promotion4Goods_GoodsType, Promotion4Goods_GoodsSKU, Promotion4Order
+import pytz
+import datetime
 
 # Create your views here.
 # http://127.0.0.1:8000
@@ -101,6 +103,9 @@ class DetailView(View):
             return redirect(reverse('goods:index'))
         # 获取商品分类信息
         types = GoodsType.objects.all()
+        # 获取本商品所在分类id
+        myskutypeid = sku.category.id
+        print("商品sku所在分类id：%d"%sku.category.id)
         # 获取商品的评论信息
         order_skus = OrderGoods.objects.filter(sku=sku).exclude(comment='').order_by('-update_time')
         # 获取同一SPU的其他规格商品
@@ -108,24 +113,48 @@ class DetailView(View):
         # 获取同种类的新品信息
         new_skus = GoodsSKU.objects.filter(category=sku.category).order_by('-create_time')[:2]
 
+        # 准备用于传递给模板的数据
+        bPromotion = 0
+        bDiscount = 0
+        fDiscount = 1.0
+        bReduct = 0
+        fReduct = 0
         # 获取促销信息，有三种情况
         # 1）促销活动覆盖全部商品
 
         # 2) 促销活动覆盖部分商品分类，此时需要检查本商品是否在该分类中
+        n_time = datetime.datetime.utcnow()
+        n_time = n_time.replace(tzinfo=pytz.timezone('UTC'))
         search_dict = dict()
         search_dict['status'] = 0  # 状态为启用
         search_dict['category'] = 1  # 覆盖范围为商品分类
         p4glist = Promotion4Goods.objects.filter(**search_dict)
         for it in p4glist:
+            starttime = it.start_time
+            endtime = it.end_time
+            if (n_time < starttime) or (n_time >= endtime):
+                print("促销活动尚未开始或者已经结束")
+                break
+
             sd = dict()
             sd['p4gobj_id'] = it.id
             pgtlist = Promotion4Goods_GoodsType.objects.filter(**sd)
             if (it.type == 0):
-                print("打折率: %f"%it.discount)
+                print("打折率: %.2f"%it.discount)
+                bDiscount = 1
+                fDiscount = it.discount
             if (it.type == 1):
-                print("降价：%f"%it.reduct)
+                print("降价：%.2f"%it.reduct)
+                bReduct = 1
+                fReduct = it.reduct
             for gt in pgtlist:
                 print("商品分类id：%d"%(gt.gtobj_id))
+                if (myskutypeid == gt.gtobj_id):
+                    bPromotion = 1
+                    break
+            if bPromotion:
+                break
+        #print("Now we confirm: bPromotion:%d, fDiscount:%.2f, fReduct:%.2f"%(bPromotion,fDiscount,fReduct))
 
         # 3) 促销活动覆盖部分商品sku，此时需要检查本商品sku是否在清单中
 
@@ -167,7 +196,12 @@ class DetailView(View):
             'order_skus': order_skus,
             'same_spu_skus': same_spu_skus,
             'new_skus': new_skus,
-            'cart_count': cart_count
+            'cart_count': cart_count,
+            'promotion': bPromotion,
+            'hasdiscount': bDiscount,
+            'discount': fDiscount,
+            'hasreduct': bReduct,
+            'reduct': fReduct
         }
         # 使用模板
         return render(request, 'detail.html', context)
