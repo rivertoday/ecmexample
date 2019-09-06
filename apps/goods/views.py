@@ -93,6 +93,112 @@ class IndexView(View):
 
 #  /goods/商品id
 class DetailView(View):
+    def checkPromotionByType(self, skutypeid, category):
+        print("根据全部或部分商品分类检查")
+        # 准备用于传递给模板的数据
+        bPromotion = 0
+        bDiscount = 0
+        fDiscount = 1.0
+        bReduct = 0
+        fReduct = 0
+        #下面开始
+        n_time = datetime.datetime.utcnow()
+        n_time = n_time.replace(tzinfo=pytz.timezone('UTC'))
+        search_dict = dict()
+        search_dict['status'] = 0  # 状态为启用
+        search_dict['category'] = category  # 覆盖范围为全部商品、商品分类
+        #即使后台设置了多个同期促销活动，也只会按顺序选取其中最晚创建的那个
+        p4glist = Promotion4Goods.objects.filter(**search_dict).order_by('-pk')
+        for it in p4glist:
+            starttime = it.start_time
+            endtime = it.end_time
+            if (n_time < starttime) or (n_time >= endtime):
+                print("该促销活动尚未开始或者已经结束")
+                continue
+
+            #活动仍然当期
+            if (category==0) :#对于覆盖全商品分类来说，无需再检查关联分类
+                if (it.type == 0):
+                    print("针对全部商品的打折率: %.2f" % it.discount)
+                    bDiscount = 1
+                    fDiscount = it.discount
+                if (it.type == 1):
+                    print("针对全部商品的降价：%.2f" % it.reduct)
+                    bReduct = 1
+                    fReduct = it.reduct
+                #设定具有促销后，直接退出
+                bPromotion = 1
+                break
+            else:#对于覆盖部分商品分类来说，则需再检查该商品是否在关联分类里面
+                sd = dict()
+                sd['p4gobj_id'] = it.id
+                pgtlist = Promotion4Goods_GoodsType.objects.filter(**sd)
+                for gt in pgtlist:
+                    #print("商品分类id：%d" % (gt.gtobj_id))
+                    #要找到匹配的分类才行
+                    if (skutypeid == gt.gtobj_id):
+                        bPromotion = 1
+                        break
+                if bPromotion:
+                    if (it.type == 0):
+                        print("针对部分分类商品的打折率: %.2f" % it.discount)
+                        bDiscount = 1
+                        fDiscount = it.discount
+                    if (it.type == 1):
+                        print("针对部分分类商品的降价：%.2f" % it.reduct)
+                        bReduct = 1
+                        fReduct = it.reduct
+                    break
+        print("Now we confirm: bPromotion:%d, fDiscount:%.2f, fReduct:%.2f"%(bPromotion,fDiscount,fReduct))
+        return bPromotion, bDiscount, fDiscount, bReduct, fReduct
+
+    def checkPromotionBySKU(self, skuid, category):
+        print("根据SKU检查")
+        sku_id = int(skuid)
+        # 准备用于传递给模板的数据
+        bPromotion = 0
+        bDiscount = 0
+        fDiscount = 1.0
+        bReduct = 0
+        fReduct = 0
+        #下面开始
+        n_time = datetime.datetime.utcnow()
+        n_time = n_time.replace(tzinfo=pytz.timezone('UTC'))
+        search_dict = dict()
+        search_dict['status'] = 0  # 状态为启用
+        search_dict['category'] = category  # 覆盖范围为商品SKU
+        # 即使后台设置了多个同期促销活动，也只会按顺序选取其中最晚创建的那个
+        p4glist = Promotion4Goods.objects.filter(**search_dict).order_by('-pk')
+        for it in p4glist:
+            starttime = it.start_time
+            endtime = it.end_time
+            if (n_time < starttime) or (n_time >= endtime):
+                print("该促销活动尚未开始或者已经结束")
+                continue
+
+            sd = dict()
+            sd['p4gobj_id'] = it.id
+            pgskulist = Promotion4Goods_GoodsSKU.objects.filter(**sd)
+            for gsku in pgskulist:
+                print("促销活动里面的商品SKUid：%d" % gsku.gskuobj_id)
+                print("参数传递进来的商品SKUid：%d" % sku_id)
+                # 要找到匹配的id才行
+                if (sku_id == gsku.gskuobj_id):
+                    bPromotion = 1
+                    break
+            if bPromotion:
+                if (it.type == 0):
+                    print("针对该商品SKU的打折率: %.2f" % it.discount)
+                    bDiscount = 1
+                    fDiscount = it.discount
+                if (it.type == 1):
+                    print("针对该商品SKU的降价：%.2f" % it.reduct)
+                    bReduct = 1
+                    fReduct = it.reduct
+                break
+        print("Now we confirm: bPromotion:%d, fDiscount:%.2f, fReduct:%.2f"%(bPromotion,fDiscount,fReduct))
+        return bPromotion, bDiscount, fDiscount, bReduct, fReduct
+
     def get(self, request, sku_id):
         """显示"""
         # 获取商品的详情信息
@@ -113,51 +219,60 @@ class DetailView(View):
         # 获取同种类的新品信息
         new_skus = GoodsSKU.objects.filter(category=sku.category).order_by('-create_time')[:2]
 
+        ##########################################################################
+        # 获取促销信息，有三种情况
+        # 1）检查是否有覆盖全部商品的促销活动
+        btmpProm1 = 0
+        btmpDiscount1 = 0
+        ftmpDiscount1 = 1.0
+        btmpReduct1 = 0
+        ftmpReduct1 = 0
+        btmpProm1, btmpDiscount1, ftmpDiscount1, btmpReduct1, ftmpReduct1 = self.checkPromotionByType(myskutypeid, 0)
+        # 2) 检查是否有覆盖部分商品分类的促销活动，此时需要检查本商品是否在该分类中
+        btmpProm2 = 0
+        btmpDiscount2 = 0
+        ftmpDiscount2 = 1.0
+        btmpReduct2 = 0
+        ftmpReduct2 = 0
+        btmpProm2, btmpDiscount2, ftmpDiscount2, btmpReduct2, ftmpReduct2 = self.checkPromotionByType(myskutypeid, 1)
+        # 3) 同时检查是否有覆盖商品sku促销活动，此时需要检查本商品sku是否在清单中
+        btmpProm3 = 0
+        btmpDiscount3 = 0
+        ftmpDiscount3 = 1.0
+        btmpReduct3 = 0
+        ftmpReduct3 = 0
+        btmpProm3, btmpDiscount3, ftmpDiscount3, btmpReduct3, ftmpReduct3 = self.checkPromotionBySKU(sku_id, 2)
+
         # 准备用于传递给模板的数据
         bPromotion = 0
         bDiscount = 0
         fDiscount = 1.0
         bReduct = 0
         fReduct = 0
-        # 获取促销信息，有三种情况
-        # 1）促销活动覆盖全部商品
+        #基本逻辑是促销活动不叠加
+        #如果本商品属于某个针对该商品SKU的促销活动，以针对该商品SKU的活动优先
+        if btmpProm3:
+            bPromotion = 1
+            bDiscount = btmpDiscount3
+            fDiscount = ftmpDiscount3
+            bReduct = btmpReduct3
+            fReduct = ftmpReduct3
+        #如果本商品属于某个覆盖部分分类的促销活动，以部分分类次优先
+        elif btmpProm2:
+            bPromotion = 1
+            bDiscount = btmpDiscount2
+            fDiscount = ftmpDiscount2
+            bReduct = btmpReduct2
+            fReduct = ftmpReduct2
+        # 如果没有，则考虑是否有覆盖全部商品的促销活动
+        elif btmpProm1:
+            bPromotion = 1
+            bDiscount = btmpDiscount1
+            fDiscount = ftmpDiscount1
+            bReduct = btmpReduct1
+            fReduct = ftmpReduct1
 
-        # 2) 促销活动覆盖部分商品分类，此时需要检查本商品是否在该分类中
-        n_time = datetime.datetime.utcnow()
-        n_time = n_time.replace(tzinfo=pytz.timezone('UTC'))
-        search_dict = dict()
-        search_dict['status'] = 0  # 状态为启用
-        search_dict['category'] = 1  # 覆盖范围为商品分类
-        p4glist = Promotion4Goods.objects.filter(**search_dict)
-        for it in p4glist:
-            starttime = it.start_time
-            endtime = it.end_time
-            if (n_time < starttime) or (n_time >= endtime):
-                print("促销活动尚未开始或者已经结束")
-                break
-
-            sd = dict()
-            sd['p4gobj_id'] = it.id
-            pgtlist = Promotion4Goods_GoodsType.objects.filter(**sd)
-            if (it.type == 0):
-                print("打折率: %.2f"%it.discount)
-                bDiscount = 1
-                fDiscount = it.discount
-            if (it.type == 1):
-                print("降价：%.2f"%it.reduct)
-                bReduct = 1
-                fReduct = it.reduct
-            for gt in pgtlist:
-                print("商品分类id：%d"%(gt.gtobj_id))
-                if (myskutypeid == gt.gtobj_id):
-                    bPromotion = 1
-                    break
-            if bPromotion:
-                break
-        #print("Now we confirm: bPromotion:%d, fDiscount:%.2f, fReduct:%.2f"%(bPromotion,fDiscount,fReduct))
-
-        # 3) 促销活动覆盖部分商品sku，此时需要检查本商品sku是否在清单中
-
+        ##########################################################################
 
         # 若用户登录，获取购物车中商品的条目数
         cart_count = 0
