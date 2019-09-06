@@ -23,6 +23,14 @@ https://github.com/weilanhanf/daily_fresh_demo
 
 https://blog.csdn.net/lswnew/article/details/79128794
 
+> 关于fastdfs的client的python包的问题
+
+默认的pip安装的requirements.txt里面的fastdfs的python client有问题，需要用本例提供的包替换一下
+
+`pip3 install fdfs_client-py-master.zip`
+
+
+
 >redis: 高速缓存兼做任务队列
 
 `apt-get install redis-server`
@@ -30,6 +38,8 @@ https://blog.csdn.net/lswnew/article/details/79128794
 >celery：异步任务处理
 
 https://www.cnblogs.com/wdliu/p/9517535.html
+
+
 
 ### 启动
 
