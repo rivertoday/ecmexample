@@ -101,6 +101,10 @@ class DetailView(View):
         fDiscount = 1.0
         bReduct = 0
         fReduct = 0
+        starttime = datetime.datetime.utcnow() + datetime.timedelta(days = -1)
+        starttime = starttime.replace(tzinfo=pytz.timezone('UTC'))
+        endtime = datetime.datetime.utcnow() + datetime.timedelta(days = -1)
+        endtime = endtime.replace(tzinfo=pytz.timezone('UTC'))
         #下面开始
         n_time = datetime.datetime.utcnow()
         n_time = n_time.replace(tzinfo=pytz.timezone('UTC'))
@@ -150,7 +154,7 @@ class DetailView(View):
                         fReduct = it.reduct
                     break
         print("Now we confirm: bPromotion:%d, fDiscount:%.2f, fReduct:%.2f"%(bPromotion,fDiscount,fReduct))
-        return bPromotion, bDiscount, fDiscount, bReduct, fReduct
+        return bPromotion, bDiscount, fDiscount, bReduct, fReduct, starttime, endtime
 
     def checkPromotionBySKU(self, skuid, category):
         print("根据SKU检查")
@@ -161,6 +165,10 @@ class DetailView(View):
         fDiscount = 1.0
         bReduct = 0
         fReduct = 0
+        starttime = datetime.datetime.utcnow() + datetime.timedelta(days=-1)
+        starttime = starttime.replace(tzinfo=pytz.timezone('UTC'))
+        endtime = datetime.datetime.utcnow() + datetime.timedelta(days=-1)
+        endtime = endtime.replace(tzinfo=pytz.timezone('UTC'))
         #下面开始
         n_time = datetime.datetime.utcnow()
         n_time = n_time.replace(tzinfo=pytz.timezone('UTC'))
@@ -197,7 +205,7 @@ class DetailView(View):
                     fReduct = it.reduct
                 break
         print("Now we confirm: bPromotion:%d, fDiscount:%.2f, fReduct:%.2f"%(bPromotion,fDiscount,fReduct))
-        return bPromotion, bDiscount, fDiscount, bReduct, fReduct
+        return bPromotion, bDiscount, fDiscount, bReduct, fReduct, starttime, endtime
 
     def get(self, request, sku_id):
         """显示"""
@@ -227,21 +235,21 @@ class DetailView(View):
         ftmpDiscount1 = 1.0
         btmpReduct1 = 0
         ftmpReduct1 = 0
-        btmpProm1, btmpDiscount1, ftmpDiscount1, btmpReduct1, ftmpReduct1 = self.checkPromotionByType(myskutypeid, 0)
+        btmpProm1, btmpDiscount1, ftmpDiscount1, btmpReduct1, ftmpReduct1, starttime1, endtime1 = self.checkPromotionByType(myskutypeid, 0)
         # 2) 检查是否有覆盖部分商品分类的促销活动，此时需要检查本商品是否在该分类中
         btmpProm2 = 0
         btmpDiscount2 = 0
         ftmpDiscount2 = 1.0
         btmpReduct2 = 0
         ftmpReduct2 = 0
-        btmpProm2, btmpDiscount2, ftmpDiscount2, btmpReduct2, ftmpReduct2 = self.checkPromotionByType(myskutypeid, 1)
+        btmpProm2, btmpDiscount2, ftmpDiscount2, btmpReduct2, ftmpReduct2, starttime2, endtime2 = self.checkPromotionByType(myskutypeid, 1)
         # 3) 同时检查是否有覆盖商品sku促销活动，此时需要检查本商品sku是否在清单中
         btmpProm3 = 0
         btmpDiscount3 = 0
         ftmpDiscount3 = 1.0
         btmpReduct3 = 0
         ftmpReduct3 = 0
-        btmpProm3, btmpDiscount3, ftmpDiscount3, btmpReduct3, ftmpReduct3 = self.checkPromotionBySKU(sku_id, 2)
+        btmpProm3, btmpDiscount3, ftmpDiscount3, btmpReduct3, ftmpReduct3, starttime3, endtime3 = self.checkPromotionBySKU(sku_id, 2)
 
         # 准备用于传递给模板的数据
         bPromotion = 0
@@ -249,6 +257,10 @@ class DetailView(View):
         fDiscount = 1.0
         bReduct = 0
         fReduct = 0
+        starttime = datetime.datetime.utcnow() + datetime.timedelta(days=-1)
+        starttime = starttime.replace(tzinfo=pytz.timezone('UTC'))
+        endtime = datetime.datetime.utcnow() + datetime.timedelta(days=-1)
+        endtime = endtime.replace(tzinfo=pytz.timezone('UTC'))
         #基本逻辑是促销活动不叠加
         #如果本商品属于某个针对该商品SKU的促销活动，以针对该商品SKU的活动优先
         if btmpProm3:
@@ -257,6 +269,8 @@ class DetailView(View):
             fDiscount = ftmpDiscount3
             bReduct = btmpReduct3
             fReduct = ftmpReduct3
+            starttime = starttime3
+            endtime = endtime3
         #如果本商品属于某个覆盖部分分类的促销活动，以部分分类次优先
         elif btmpProm2:
             bPromotion = 1
@@ -264,6 +278,8 @@ class DetailView(View):
             fDiscount = ftmpDiscount2
             bReduct = btmpReduct2
             fReduct = ftmpReduct2
+            starttime = starttime2
+            endtime = endtime2
         # 如果没有，则考虑是否有覆盖全部商品的促销活动
         elif btmpProm1:
             bPromotion = 1
@@ -271,6 +287,8 @@ class DetailView(View):
             fDiscount = ftmpDiscount1
             bReduct = btmpReduct1
             fReduct = ftmpReduct1
+            starttime = starttime1
+            endtime = endtime1
 
         ##########################################################################
 
@@ -286,6 +304,23 @@ class DetailView(View):
             # 获取用户购物车中商品的条目数
             # hlen(key)-> 返回属性的数目
             cart_count = conn.hlen(cart_key)
+
+            ###################################
+            # 设置促销信息
+            prom_key = 'promotion_%s' % sku_id
+            # promotion_1:
+            # {'bPromotion':'1',
+            # 'bDiscount':'1','fDiscount':'0.90',
+            # 'bReduct':'0', 'fReduct':'0',
+            # 'starttime':'2019-09-06 07:26:00+00:00', 'endtime':'2019-09-09 07:26:00+00:00'}
+            conn.hset(prom_key, 'bPromotion', bPromotion)
+            conn.hset(prom_key, 'bDiscount', bDiscount)
+            conn.hset(prom_key, 'fDiscount', fDiscount)
+            conn.hset(prom_key, 'bReduct', bReduct)
+            conn.hset(prom_key, 'fReduct', fReduct)
+            conn.hset(prom_key, 'starttime', starttime)
+            conn.hset(prom_key, 'endtime', endtime)
+            ###################################
 
             # 添加用户的历史浏览记录
             # 拼接key

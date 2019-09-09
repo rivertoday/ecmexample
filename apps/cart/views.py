@@ -1,18 +1,15 @@
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
-
 from django_redis import get_redis_connection
 from utils.mixin import LoginRequiredMixin
-
 from goods.models import GoodsSKU
-
-
 from django.views.generic import detail
+import pytz
+import datetime
+import decimal
 
 # Create your views here.
-
-
 # 前端传递的参数: 商品id(sku_id) 商品数量(count)
 # ajax post 请求
 # /cart/add
@@ -78,6 +75,15 @@ class CartAddView(View):
 class CartInfoView(LoginRequiredMixin, View):
     """购物车页面显示"""
 
+    # starttime: "b'2019-09-06 07:26:00+00:00"
+    #将redis里面的日期时间字符串转换成带时区的日期时间
+    def parse_mytime(self, s):
+        year_s, mon_s, day_s = s[2:12].split('-')
+        hour_s, min_s, sec_s = s[13:21].split(':')
+        mytime = datetime.datetime(int(year_s), int(mon_s), int(day_s), int(hour_s), int(min_s), int(sec_s))
+        mytime = mytime.replace(tzinfo=pytz.timezone('UTC'))
+        return mytime
+
     def get(self, request):
         # 获取登录用户
         user = request.user
@@ -100,21 +106,49 @@ class CartInfoView(LoginRequiredMixin, View):
             # 根据sku_id获取商品的信息
             sku = GoodsSKU.objects.get(id=sku_id)
 
-            # 计算商品的小计
-            amount = sku.price * int(count)
+            #############################################
+            #促销拼接key
+            prom_key = 'promotion_%d' % int(sku_id)
 
+            n_time = datetime.datetime.utcnow()
+            n_time = n_time.replace(tzinfo=pytz.timezone('UTC'))
+            # starttime: "2019-09-06 07:26:00+00:00"
+            if (n_time < self.parse_mytime(str(conn.hget(prom_key, 'starttime')))) or (n_time >= self.parse_mytime(str(conn.hget(prom_key, 'endtime')))):
+                print("购物车计算，该促销活动尚未开始或者已经结束")
+                # 计算商品的小计
+                amount = sku.price * int(count)
+                print("购物车：amount: %.2f" % amount)
+            else:
+                # 计算商品的小计
+                if int(conn.hget(prom_key, 'bPromotion')):
+                    if int(conn.hget(prom_key, 'bDiscount')):
+                        print("购物车redis fDiscount：%s" % conn.hget(prom_key, 'fDiscount'))
+                        fDiscount = decimal.Decimal(float(conn.hget(prom_key, 'fDiscount')))
+                        print("购物车：fDiscount: %.2f"%fDiscount)
+                        amount = sku.price * int(count) * fDiscount
+                        print("购物车：amount: %.2f"%amount)
+                    elif int(conn.hget(prom_key, 'bReduct')):
+                        print("购物车redis fReduct：%s" % conn.hget(prom_key, 'fReduct'))
+                        fReduct = decimal.Decimal(float(conn.hget(prom_key, 'fReduct')))
+                        print("购物车：fReduct: %.2f"%fReduct)
+                        amount = (sku.pricecou - fReduct) * int(count)
+                        print("购物车：amount: %.2f" % amount)
+                else:
+                    amount = sku.price * int(count)
+
+            #############################################
             # 给sku对象增加属性amout和count, 分别保存用户购物车中商品的小计和数量
             sku.count = int(count)
-            sku.amount = int(amount)
+            sku.amount = float('%.2f'%amount)
 
-            print("%s-%d"%(sku.name,sku.count))
+            print("%s-%d" % (sku.name, sku.count))
 
             # 追加商品的信息
             skus.append(sku)
 
             # 累加计算用户购物车中商品的总数目和总价格
             total_count += int(count)
-            total_amount += amount
+            total_amount += float('%.2f'%amount)
 
         # 组织模板上下文
         context = {
