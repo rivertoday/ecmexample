@@ -1,5 +1,6 @@
 {% extends 'base_no_cart.html' %}
 {% load static from staticfiles %}
+{% load my_tag %}
 {% block title %}天天生鲜-购物车{% endblock title %}
 {% block page_title %}购物车{% endblock page_title %}
 {% block body %}
@@ -8,6 +9,7 @@
 		<li class="col01">商品名称</li>
 		<li class="col02">商品单位</li>
 		<li class="col03">商品价格</li>
+        <li class="col66">优惠信息</li>
 		<li class="col04">数量</li>
 		<li class="col05">小计</li>
 		<li class="col06">操作</li>
@@ -21,6 +23,18 @@
 		<li class="col03">{{ sku.name }}<br><em>{{ sku.price }}元/{{ sku.unit }}</em></li>
 		<li class="col04">{{ sku.unit }}</li>
 		<li class="col05">{{ sku.price }}元</li>
+        <li class="col66">
+            {% if sku.promotion %}
+                    {% if sku.hasdiscount %}
+                        打折：{{ sku.discount|floatformat:"2" }}
+                    {% endif %}
+                    {% if sku.hasreduct %}
+                        降价：{{ sku.reduct|floatformat:"2" }}元
+                    {% endif %}
+            {% else %}
+                无优惠
+            {% endif %}
+        </li>
 		<li class="col06">
 			<div class="num_add">
 				<a href="javascript:;" class="add fl">+</a>
@@ -41,7 +55,7 @@
         {% csrf_token %}
 		<li class="col01"><input type="checkbox" name="" checked=""></li>
 		<li class="col02">全选</li>
-		<li class="col03">合计(不含运费)：<span>¥</span><em>{{ total_amount }}</em><br>共计<b>{{ total_count }}</b>件商品</li>
+		<li class="col03">合计(不含运费)：<span>¥</span><em>{{ total_amount|floatformat:"2" }}</em><br>共计<b>{{ total_count }}</b>件商品</li>
 		<li class="col04"><input type="submit" value="去结算" style="width: 150px; height: 50px; background-color: #37ab40; font-size: 20px; color: #fff"></li>
 	</ul>
     </form>

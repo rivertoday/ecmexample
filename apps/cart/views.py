@@ -115,21 +115,29 @@ class CartInfoView(LoginRequiredMixin, View):
             # starttime: "2019-09-06 07:26:00+00:00"
             if (n_time < self.parse_mytime(str(conn.hget(prom_key, 'starttime')))) or (n_time >= self.parse_mytime(str(conn.hget(prom_key, 'endtime')))):
                 print("购物车计算，该促销活动尚未开始或者已经结束")
+                # 给sku对象增加促销相关属性
+                sku.promotion = 0
                 # 计算商品的小计
                 amount = sku.price * int(count)
                 print("购物车：amount: %.2f" % amount)
             else:
                 # 计算商品的小计
                 if int(conn.hget(prom_key, 'bPromotion')):
+                    # 给sku对象增加促销相关属性
+                    sku.promotion = 1
                     if int(conn.hget(prom_key, 'bDiscount')):
+                        sku.hasdiscount = 1
                         print("购物车redis fDiscount：%s" % conn.hget(prom_key, 'fDiscount'))
                         fDiscount = decimal.Decimal(float(conn.hget(prom_key, 'fDiscount')))
+                        sku.discount = fDiscount
                         print("购物车：fDiscount: %.2f"%fDiscount)
                         amount = sku.price * int(count) * fDiscount
                         print("购物车：amount: %.2f"%amount)
                     elif int(conn.hget(prom_key, 'bReduct')):
+                        sku.hasreduct = 1
                         print("购物车redis fReduct：%s" % conn.hget(prom_key, 'fReduct'))
                         fReduct = decimal.Decimal(float(conn.hget(prom_key, 'fReduct')))
+                        sku.reduct = fReduct
                         print("购物车：fReduct: %.2f"%fReduct)
                         amount = (sku.pricecou - fReduct) * int(count)
                         print("购物车：amount: %.2f" % amount)
@@ -149,6 +157,7 @@ class CartInfoView(LoginRequiredMixin, View):
             # 累加计算用户购物车中商品的总数目和总价格
             total_count += int(count)
             total_amount += float('%.2f'%amount)
+            total_amount = float('%.2f'%total_amount)
 
         # 组织模板上下文
         context = {
