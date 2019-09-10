@@ -113,10 +113,12 @@ class CartInfoView(LoginRequiredMixin, View):
             n_time = datetime.datetime.utcnow()
             n_time = n_time.replace(tzinfo=pytz.timezone('UTC'))
             # starttime: "2019-09-06 07:26:00+00:00"
+            sku.promotion = 0
+            sku.hasdiscount = 0
+            sku.hasreduct = 0
             if (n_time < self.parse_mytime(str(conn.hget(prom_key, 'starttime')))) or (n_time >= self.parse_mytime(str(conn.hget(prom_key, 'endtime')))):
                 print("购物车计算，该促销活动尚未开始或者已经结束")
                 # 给sku对象增加促销相关属性
-                sku.promotion = 0
                 # 计算商品的小计
                 amount = sku.price * int(count)
                 print("购物车：amount: %.2f" % amount)

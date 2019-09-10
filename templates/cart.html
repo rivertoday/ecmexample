@@ -4,65 +4,74 @@
 {% block title %}天天生鲜-购物车{% endblock title %}
 {% block page_title %}购物车{% endblock page_title %}
 {% block body %}
-	<div class="total_count">全部商品<em>{{ total_count }}</em>件</div>
-	<ul class="cart_list_th clearfix">
-		<li class="col01">商品名称</li>
-		<li class="col02">商品单位</li>
-		<li class="col03">商品价格</li>
+    <div class="total_count">全部商品<em>{{ total_count }}</em>件</div>
+    <ul class="cart_list_th clearfix">
+        <li class="col01">商品名称</li>
+        <li class="col02">商品单位</li>
+        <li class="col03">商品价格</li>
         <li class="col66">优惠信息</li>
-		<li class="col04">数量</li>
-		<li class="col05">小计</li>
-		<li class="col06">操作</li>
-	</ul>
+        <li class="col04">数量</li>
+        <li class="col05">小计</li>
+        <li class="col06">操作</li>
+    </ul>
     {# 遍历显示用户购物车中商品的记录 #}
     <form method="post" action="{% url 'order:place' %}">
-    {% for sku in skus %}
-	<ul class="cart_list_td clearfix" id="{{ sku.id }}">
-		<li class="col01"><input type="checkbox" name="sku_ids" value="{{ sku.id }}" checked></li>
-		<li class="col02"><img src="{{ sku.image.url }}"></li>
-		<li class="col03">{{ sku.name }}<br><em>{{ sku.price }}元/{{ sku.unit }}</em></li>
-		<li class="col04">{{ sku.unit }}</li>
-		<li class="col05">{{ sku.price }}元</li>
-        <li class="col66">
-            {% if sku.promotion %}
-                    {% if sku.hasdiscount %}
-                        打折：{{ sku.discount|floatformat:"2" }}
+        {% for sku in skus %}
+            <ul class="cart_list_td clearfix" id="{{ sku.id }}">
+                <li class="col01"><input type="checkbox" name="sku_ids" value="{{ sku.id }}" checked></li>
+                <li class="col02"><img src="{{ sku.image.url }}"></li>
+                <li class="col03">{{ sku.name }}<br><em>{{ sku.price }}元/{{ sku.unit }}</em></li>
+                <li class="col04">{{ sku.unit }}</li>
+                <li class="col05">{{ sku.price }}元</li>
+                <li class="col66">
+                    {% if sku.promotion %}
+                        {% if sku.hasdiscount %}
+                            打折：{{ sku.discount|floatformat:"2" }}
+                        {% endif %}
+                        {% if sku.hasreduct %}
+                            降价：{{ sku.reduct|floatformat:"2" }}元
+                        {% endif %}
+                    {% else %}
+                        无优惠
                     {% endif %}
-                    {% if sku.hasreduct %}
-                        降价：{{ sku.reduct|floatformat:"2" }}元
-                    {% endif %}
-            {% else %}
-                无优惠
-            {% endif %}
-        </li>
-		<li class="col06">
-			<div class="num_add">
-				<a href="javascript:;" class="add fl">+</a>
-				<input type="text" sku_id="{{ sku.id }}" class="num_show fl" value="{{ sku.count }}">
-				<a href="javascript:;" class="minus fl">-</a>	
-			</div>
-		</li>
-		<li class="col07">{{ sku.amount }}元</li>
-		<li class="col08">
-			<input type="hidden" sku_id="{{ sku.id }}">
-			<a href="javascript:;">删除</a>
-			<!--<a href="javascript:cart_del({{ sku.id}});">删除</a>-->
-		</li>
-	</ul>
-	{% endfor %}
+                    <input type="hidden" id="promotion" value="{{ sku.promotion }}"/>
+                    <input type="hidden" id="hasdiscount" value="{{ sku.hasdiscount }}"/>
+                    <input type="hidden" id="discount" value="{{ sku.discount }}"/>
+                    <input type="hidden" id="hasreduct" value="{{ sku.hasreduct }}"/>
+                    <input type="hidden" id="reduct" value="{{ sku.reduct }}"/>
+                </li>
+                <li class="col06">
+                    <div class="num_add">
+                        <a href="javascript:;" class="add fl">+</a>
+                        <input type="text" sku_id="{{ sku.id }}" class="num_show fl" value="{{ sku.count }}"/>
+                        <a href="javascript:;" class="minus fl">-</a>
+                    </div>
+                </li>
+                <li class="col07">{{ sku.amount }}元</li>
+                <li class="col08">
+                    <input type="hidden" sku_id="{{ sku.id }}">
+                    <a href="javascript:;">删除</a>
+                    <!--<a href="javascript:cart_del({{ sku.id}});">删除</a>-->
+                </li>
+            </ul>
+        {% endfor %}
 
-	<ul class="settlements">
-        {% csrf_token %}
-		<li class="col01"><input type="checkbox" name="" checked=""></li>
-		<li class="col02">全选</li>
-		<li class="col03">合计(不含运费)：<span>¥</span><em>{{ total_amount|floatformat:"2" }}</em><br>共计<b>{{ total_count }}</b>件商品</li>
-		<li class="col04"><input type="submit" value="去结算" style="width: 150px; height: 50px; background-color: #37ab40; font-size: 20px; color: #fff"></li>
-	</ul>
+        <ul class="settlements">
+            {% csrf_token %}
+            <li class="col01"><input type="checkbox" name="" checked=""></li>
+            <li class="col02">全选</li>
+            <li class="col03">
+                合计(不含运费)：<span>¥</span><em>{{ total_amount|floatformat:"2" }}</em><br>共计<b>{{ total_count }}</b>件商品
+            </li>
+            <li class="col04"><input type="submit" value="去结算"
+                                     style="width: 150px; height: 50px; background-color: #37ab40; font-size: 20px; color: #fff">
+            </li>
+        </ul>
     </form>
 {% endblock body %}
 {% block bottomfiles %}
     <script src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
-    <script>
+    <script type="text/javascript">
         //计算页面上被选中的商品的总数目和总价格
         function update_page_info() {
             var total_count = 0;
@@ -95,7 +104,7 @@
 
             // 更新页面上被选中的商品的总数目和总价格
             update_page_info();
-        })
+        });
 
         // 当商品的checkbox状态发生改变的时候，全选checkbox状态改变
         $('.cart_list_td').find(':checkbox').change(function () {
@@ -114,7 +123,8 @@
             // 更新页面上被选中的商品的总数目和总价格
             update_page_info();
 
-        })
+        });
+
         // 购物车记录更新前端js通用的流程
         /*
             1) 获取更新的商品id和更新数目
@@ -129,7 +139,6 @@
             3.2 更新失败
                 a) 提示错误的信息
          */
-
         // 更新redis中对应的购物车记录
         var update_error = false; // false代表更新成功
         var cart_count = 0; // 保存用户购物车中商品的总件数
@@ -162,14 +171,21 @@
         }
 
         // 计算商品的小计
-        function update_sku_amount(sku_ul) {
+        function update_sku_amount(sku_ul, bhaspromotion, bhasdiscount, fdiscount, bhasreduct, freduct) {
             // 获取商品的价格和数量
             var price = sku_ul.children('.col05').text();
             var count = sku_ul.find('.num_show').val();
             // 计算商品的小计
-            var amount = parseInt(count)*parseFloat(price);
+            var amount = parseInt(count) * parseFloat(price);
+            if (bhaspromotion) {
+                if (bhasdiscount) {
+                    amount = amount * parseFloat(fdiscount);
+                } else if (bhasreduct) {
+                    amount = amount - parseInt(count) * parseFloat(freduct);
+                }
+            }
             // 设置商品的小计
-            sku_ul.children('.col07').text(amount.toFixed(2)+'元');
+            sku_ul.children('.col07').text(amount.toFixed(2) + '元');
         }
 
         // 购物车记录增加
@@ -189,7 +205,20 @@
                 $(this).next().val(count);
                 // b) 重新计算对应商品的小计
                 var sku_ul = $(this).parents('ul'); // 获取商品所在的ul元素
-                update_sku_amount(sku_ul);
+
+                //获取商品的折扣
+                var bhaspromotion = sku_ul.find('#promotion').val();
+                var bhasdiscount = sku_ul.find('#hasdiscount').val();
+                var fdiscount = sku_ul.find('#discount').val();
+                var bhasreduct = sku_ul.find('#hasreduct').val();
+                var freduct = sku_ul.find('#reduct').val();
+                {% comment %}var bhaspromotion = 1;
+                var bhasdiscount = 1;
+                var fdiscount = 0.90;
+                var bhasreduct = 0;
+                var freduct = 0;{% endcomment %}
+
+                update_sku_amount(sku_ul, bhaspromotion, bhasdiscount, fdiscount, bhasreduct, freduct);
                 // c) 判断商品是否被选中，如果选中，更新页面上被选中的商品的总数目和总价格
                 var is_checked = sku_ul.find(':checkbox').prop('checked');
                 if (is_checked) {
@@ -198,7 +227,7 @@
                 // d) 更新页面上用户购物车中商品的总件数
                 $('.total_count').children('em').text(cart_count);
             }
-        })
+        });
 
         // 购物车记录减少
         $('.minus').click(function () {
@@ -220,7 +249,20 @@
                 $(this).prev().val(count);
                 // b) 重新计算对应商品的小计
                 var sku_ul = $(this).parents('ul'); // 获取商品所在的ul元素
-                update_sku_amount(sku_ul);
+
+                //获取商品的折扣
+                var bhaspromotion = sku_ul.find('#promotion').val();
+                var bhasdiscount = sku_ul.find('#hasdiscount').val();
+                var fdiscount = sku_ul.find('#discount').val();
+                var bhasreduct = sku_ul.find('#hasreduct').val();
+                var freduct = sku_ul.find('#reduct').val();
+                {% comment %}var bhaspromotion = 1;
+                var bhasdiscount = 1;
+                var fdiscount = 0.90;
+                var bhasreduct = 0;
+                var freduct = 0;{% endcomment %}
+
+                update_sku_amount(sku_ul, bhaspromotion, bhasdiscount, fdiscount, bhasreduct, freduct);
                 // c) 判断商品是否被选中，如果选中，更新页面上被选中的商品的总数目和总价格
                 var is_checked = sku_ul.find(':checkbox').prop('checked');
                 if (is_checked) {
@@ -229,7 +271,7 @@
                 // d) 更新页面上用户购物车中商品的总件数
                 $('.total_count').children('em').text(cart_count);
             }
-        })
+        });
 
         // 购物车商品数目手动输入
         var pre_count = 0;
@@ -243,7 +285,7 @@
             var sku_id = $(this).attr('sku_id');
             var count = $(this).val();
             // 校验用户输入的商品的数量
-            if (isNaN(count) || count.trim().length==0 || parseInt(count)<=0){
+            if (isNaN(count) || count.trim().length == 0 || parseInt(count) <= 0) {
                 // 设置购物车中对应商品的数目为用户输入之前的数目
                 $(this).val(pre_count);
                 return;
@@ -260,7 +302,20 @@
                 $(this).val(count);
                 // b) 重新计算对应商品的小计
                 var sku_ul = $(this).parents('ul'); // 获取商品所在的ul元素
-                update_sku_amount(sku_ul);
+
+                //获取商品的折扣
+                var bhaspromotion = sku_ul.find('#promotion').val();
+                var bhasdiscount = sku_ul.find('#hasdiscount').val();
+                var fdiscount = sku_ul.find('#discount').val();
+                var bhasreduct = sku_ul.find('#hasreduct').val();
+                var freduct = sku_ul.find('#reduct').val();
+                {% comment %}var bhaspromotion = 1;
+                var bhasdiscount = 1;
+                var fdiscount = 0.90;
+                var bhasreduct = 0;
+                var freduct = 0;{% endcomment %}
+
+                update_sku_amount(sku_ul, bhaspromotion, bhasdiscount, fdiscount, bhasreduct, freduct);
                 // c) 判断商品是否被选中，如果选中，更新页面上被选中的商品的总数目和总价格
                 var is_checked = sku_ul.find(':checkbox').prop('checked');
                 if (is_checked) {
@@ -274,7 +329,7 @@
                 // 设置购物车中对应商品的数目为用户输入之前的数目
                 $(this).val(pre_count);
             }
-        })
+        });
 
         // 购物车记录删除js流程
         /*
@@ -308,7 +363,7 @@
                     // 删除成功
                     // a）移除页面上商品所在的ul
                     sku_ul.remove(); // 移除自身以及子元素
-					//$('ul').remove('#'+sku_id);
+                    //$('ul').remove('#'+sku_id);
                     // b) 判断商品是否被选中，如果选中，更新页面上被选中的商品的总数目和总价格
                     var is_checked = sku_ul.find(':checkbox').prop('checked');
                     if (is_checked) {
@@ -322,43 +377,43 @@
                     alert(data.errmsg);
                 }
             })
-        })
+        });
 
-		/*function cart_del(sku_id) {
+        /*function cart_del(sku_id) {
             del = confirm('确定删除');
             alert(sku_id);
             if (del) {
                 // 获取csrf
-				var csrf = $('input[name="csrfmiddlewaretoken"]').val();
-				var params = {
-					'sku_id': sku_id,
-					'csrfmiddlewaretoken': csrf
-				};
-				// 获取商品所在的ul
-				var sku_ul = $(this).parents('ul');
-				// 发起ajax post请求，访问/cart/delete, 传递参数: sku_id
-				$.post('/cart/delete', params, function (data) {
-				    //alert(data.res);
-					if (data.res == 3) {
-						// 删除成功
-						// a）移除页面上商品所在的ul
-						sku_ul.remove(); // 移除自身以及子元素
-						// b) 判断商品是否被选中，如果选中，更新页面上被选中的商品的总数目和总价格
-						update_page_info();
-						/!*var is_checked = sku_ul.find(':checkbox').prop('checked');
-						if (is_checked) {
-						    alert("update page");
-							update_page_info();
-						}*!/
-						// c) 重新设置页面上用户购物车中商品的总件数
-						$('.total_count').children('em').text(data.total_count);
-					}
-					else {
-						// 删除失败
-						alert(data.errmsg);
-					}
-				})
-			}
+                var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+                var params = {
+                    'sku_id': sku_id,
+                    'csrfmiddlewaretoken': csrf
+                };
+                // 获取商品所在的ul
+                var sku_ul = $(this).parents('ul');
+                // 发起ajax post请求，访问/cart/delete, 传递参数: sku_id
+                $.post('/cart/delete', params, function (data) {
+                    //alert(data.res);
+                    if (data.res == 3) {
+                        // 删除成功
+                        // a）移除页面上商品所在的ul
+                        sku_ul.remove(); // 移除自身以及子元素
+                        // b) 判断商品是否被选中，如果选中，更新页面上被选中的商品的总数目和总价格
+                        update_page_info();
+                        /!*var is_checked = sku_ul.find(':checkbox').prop('checked');
+                        if (is_checked) {
+                            alert("update page");
+                            update_page_info();
+                        }*!/
+                        // c) 重新设置页面上用户购物车中商品的总件数
+                        $('.total_count').children('em').text(data.total_count);
+                    }
+                    else {
+                        // 删除失败
+                        alert(data.errmsg);
+                    }
+                })
+            }
         }*/
     </script>
 {% endblock bottomfiles %}
