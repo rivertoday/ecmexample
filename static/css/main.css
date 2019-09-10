@@ -383,7 +383,9 @@ html,body{height:100%}
 .settlements li{line-height:78px;float:left;}
 .settlements .col01{width:4%;text-align:center}
 .settlements .col02{width:12%;}
-.settlements .col03{width:69%; height:48px; line-height:28px;text-align:right;margin-top:10px;}
+.settlements .col61{width:15%;}
+.settlements .col62{width:15%;}
+.settlements .col03{width:39%; height:48px; line-height:28px;text-align:right;margin-top:10px;}
 .settlements .col03 span{color:#ff0000;padding-right:5px}
 .settlements .col03 em{color:#ff3d3d;font-size:22px;font-weight:bold;}
 .settlements .col03 span{color:#ff0000;}
