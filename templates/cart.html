@@ -1,9 +1,9 @@
 {% extends 'base_no_cart.html' %}
 {% load static from staticfiles %}
-{% load my_tag %}
 {% block title %}天天生鲜-购物车{% endblock title %}
 {% block page_title %}购物车{% endblock page_title %}
 {% block body %}
+    {% load mathfilters %}
     <div class="total_count">全部商品<em>{{ total_count }}</em>件</div>
     <ul class="cart_list_th clearfix">
         <li class="col01">商品名称</li>
@@ -36,9 +36,9 @@
                     {% endif %}
                     <input type="hidden" id="promotion" value="{{ sku.promotion }}"/>
                     <input type="hidden" id="hasdiscount" value="{{ sku.hasdiscount }}"/>
-                    <input type="hidden" id="discount" value="{{ sku.discount }}"/>
+                    <input type="hidden" id="discount" value="{{ sku.discount|floatformat:"2" }}"/>
                     <input type="hidden" id="hasreduct" value="{{ sku.hasreduct }}"/>
-                    <input type="hidden" id="reduct" value="{{ sku.reduct }}"/>
+                    <input type="hidden" id="reduct" value="{{ sku.reduct|floatformat:"2" }}"/>
                 </li>
                 <li class="col06">
                     <div class="num_add">
@@ -47,7 +47,9 @@
                         <a href="javascript:;" class="minus fl">-</a>
                     </div>
                 </li>
-                <li class="col07">{{ sku.amount }}元</li>
+                <li class="col07">
+                    {{ sku.amount }}元
+                </li>
                 <li class="col08">
                     <input type="hidden" sku_id="{{ sku.id }}">
                     <a href="javascript:;">删除</a>
@@ -60,6 +62,22 @@
             {% csrf_token %}
             <li class="col01"><input type="checkbox" name="" checked=""></li>
             <li class="col02">全选</li>
+            <li class="col61">
+                {% if orderbdiscount %}
+                    {% if total_amount >= orderdiscountfee %}
+                        本单享受全单折扣 {{ orderdiscount|mul:10 }}折
+                    {% endif %}
+                {% else %}
+                    当前无满折活动！
+                {% endif %}
+            </li>
+            <li class="col62">
+                {% if orderbreduct %}
+                    本单享受全单满减 {{ total_amount|intdiv:orderreductfee|mul:orderreduct}} 元
+                {% else %}
+                    当前无满减活动！
+                {% endif %}
+            </li>
             <li class="col03">
                 合计(不含运费)：<span>¥</span><em>{{ total_amount|floatformat:"2" }}</em><br>共计<b>{{ total_count }}</b>件商品
             </li>

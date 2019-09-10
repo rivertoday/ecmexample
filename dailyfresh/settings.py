@@ -55,6 +55,7 @@ INSTALLED_APPS = (
     # 'xadmin',
     # 'crispy_forms',
     # 'reversion',
+    'mathfilters',
 )
 
 #MIDDLEWARE_CLASSES = (
@@ -103,8 +104,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'phxtea',
         'HOST': '127.0.0.1',
-        'PORT': '3306',
-        'USER': 'phxtea',
+        'PORT': '3307',
+        'USER': 'webuser',
         'PASSWORD': 'asdf1234',
     }
 }
@@ -201,7 +202,7 @@ DEFAULT_FILE_STORAGE = 'utils.fdfs.storage.FDFSStorage'
 FDFS_CLIENT_CONF = os.path.join(BASE_DIR, 'utils/fdfs/client.conf')
 
 # 指定FDFS系统中Nginx的ip和port
-FDFS_NGINX_URL = 'http://39.104.189.166:9000/'
+FDFS_NGINX_URL = 'http://115.29.64.235:9000/'
 
 
 # 当添加、修改、删除数据时，自动生成索引

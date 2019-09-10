@@ -5,6 +5,8 @@ from django_redis import get_redis_connection
 from utils.mixin import LoginRequiredMixin
 from goods.models import GoodsSKU
 from django.views.generic import detail
+
+from promotion.models import Promotion4Order
 import pytz
 import datetime
 import decimal
@@ -84,6 +86,82 @@ class CartInfoView(LoginRequiredMixin, View):
         mytime = mytime.replace(tzinfo=pytz.timezone('UTC'))
         return mytime
 
+    #订单查优惠
+    def checkPromotion4Order(self):
+        print("查询订单优惠信息")
+        #满折和满减冲突，只能二选一，包邮不冲突
+        # 准备用于传递给模板的数据
+        bPostFree = 0 #包邮
+        fPostFee = 0 #包邮起点金额
+        bDiscount = 0 #满折
+        fDiscount = 1.0
+        fDiscountFee = 0 #满折起点金额
+        bReduct = 0 #满减
+        fReduct = 0
+        fReductFee = 0 #满减起点金额，每够这个金额就减去多少
+        starttime = datetime.datetime.utcnow() + datetime.timedelta(days=-1)
+        starttime = starttime.replace(tzinfo=pytz.timezone('UTC'))
+        endtime = datetime.datetime.utcnow() + datetime.timedelta(days=-1)
+        endtime = endtime.replace(tzinfo=pytz.timezone('UTC'))
+        # 下面开始
+        n_time = datetime.datetime.utcnow()
+        n_time = n_time.replace(tzinfo=pytz.timezone('UTC'))
+        # 1、先查包邮的
+        search_dict = dict()
+        search_dict['status'] = 0  # 状态为启用
+        search_dict['type'] = 0  # 包邮
+        # 即使后台设置了多个同期促销活动，也只会按顺序选取其中最晚创建的那个
+        p4olist = Promotion4Order.objects.filter(**search_dict).order_by('-pk')
+        for it in p4olist:
+            starttime = it.start_time
+            endtime = it.end_time
+            if (n_time < starttime) or (n_time >= endtime):
+                print("该促销活动尚未开始或者已经结束")
+                continue
+
+            #活动仍然当期且最新的那个
+            bPostFree = 1
+            fPostFee = it.amount
+            break
+
+        # 2、再查满折的
+        search_dict['status'] = 0  # 状态为启用
+        search_dict['type'] = 1  # 满折
+        # 即使后台设置了多个同期促销活动，也只会按顺序选取其中最晚创建的那个
+        p4olist = Promotion4Order.objects.filter(**search_dict).order_by('-pk')
+        for it in p4olist:
+            starttime = it.start_time
+            endtime = it.end_time
+            if (n_time < starttime) or (n_time >= endtime):
+                print("该促销活动尚未开始或者已经结束")
+                continue
+
+            # 活动仍然当期且最新的那个
+            bDiscount = 1
+            fDiscount = it.discount
+            fDiscountFee = it.amount
+            break
+
+        # 3、再查满减的
+        search_dict['status'] = 0  # 状态为启用
+        search_dict['type'] = 2  # 满减
+        # 即使后台设置了多个同期促销活动，也只会按顺序选取其中最晚创建的那个
+        p4olist = Promotion4Order.objects.filter(**search_dict).order_by('-pk')
+        for it in p4olist:
+            starttime = it.start_time
+            endtime = it.end_time
+            if (n_time < starttime) or (n_time >= endtime):
+                print("该促销活动尚未开始或者已经结束")
+                continue
+
+            # 活动仍然当期且最新的那个
+            bReduct = 1
+            fReduct = it.reduct
+            fReductFee = it.amount
+            break
+            
+        return bPostFree, fPostFee, bDiscount, fDiscount, fDiscountFee, bReduct, fReduct, fReductFee
+
     def get(self, request):
         # 获取登录用户
         user = request.user
@@ -161,11 +239,25 @@ class CartInfoView(LoginRequiredMixin, View):
             total_amount += float('%.2f'%amount)
             total_amount = float('%.2f'%total_amount)
 
+        #获取订单优惠信息
+        orderprom = []
+        #包邮，包邮起点金额，满折，满折折扣，满折起点金额，满减，满减金额，满减起点金额
+        orderbpost, orderpostfee, orderbdiscount, orderdiscount, orderdiscountfee, orderbreduct, orderreduct, orderreductfee = self.checkPromotion4Order()
+
+
         # 组织模板上下文
         context = {
             'total_count': total_count,
             'total_amount': total_amount,
-            'skus': skus
+            'skus': skus,
+            'orderbpost': orderbpost,
+            'orderpostfee': orderpostfee,
+            'orderbdiscount': orderbdiscount,
+            'orderdiscount': orderdiscount,
+            'orderdiscountfee': orderdiscountfee,
+            'orderbreduct': orderbreduct,
+            'orderreduct': orderreduct,
+            'orderreductfee': orderreductfee
         }
 
         # 使用模板
