@@ -45,7 +45,7 @@ def send_register_active_email(to_email, username, token):
     html_message = """
                         <h1>%s, 欢迎您成为凤凰茶城注册会员</h1>
                         请点击以下链接激活您的账户(7个小时内有效)<br/>
-                        <a href="http://39.104.189.166:8000/user/active/%s">http://39.104.189.166:8000/user/active/%s</a>
+                        <a href="http://115.29.64.235:8000/user/active/%s">http://115.29.64.235:8000/user/active/%s</a>
                     """ % (username, token, token)
 
     # 发送激活邮件
